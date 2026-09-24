@@ -4,9 +4,11 @@ from pydantic import BaseModel, Field
 
 class ChecklistItem(BaseModel):
     id: str
-    title: str
+    title: Optional[str] = "Inspection Check"
+    item_text: Optional[str] = None
+    regulatory_reference: Optional[str] = None
     category: str = "GENERAL" # ATMOSPHERIC, VENTILATION, STRATA, MACHINERY, PPE, EMERGENCY
-    status: str = "PENDING" # PENDING, SATISFACTORY, NON_COMPLIANT, HAZARD_FLAGGED, NOT_APPLICABLE
+    status: str = "PENDING" # PENDING, SATISFACTORY, COMPLIANT, OBSERVATION, NON_COMPLIANT, NOT_APPLICABLE
     notes: Optional[str] = None
     severity: Optional[str] = "LOW"
     evidence_codes: List[str] = []
@@ -37,18 +39,24 @@ class FieldInspectionUpdate(BaseModel):
     gps_accuracy_meters: Optional[float] = None
     completed_at: Optional[datetime] = None
 
+class FieldEvidenceVerificationRequest(BaseModel):
+    status: str # VERIFIED, REJECTED
+    verification_notes: Optional[str] = None
+
 class FieldEvidenceCreate(BaseModel):
     evidence_code: str
     mine_id: int
     inspection_id: Optional[int] = None
     observation_id: Optional[int] = None
     incident_id: Optional[int] = None
-    evidence_type: str = "PHOTO"
+    evidence_type: str = "PHOTO" # PHOTO, DOCUMENT, NOTE, SENSOR_LOG
     title: str
     description: Optional[str] = None
     file_url_or_path: Optional[str] = None
     file_hash_sha256: str
     file_size_bytes: int = 0
+    mime_type: Optional[str] = "image/jpeg"
+    location_source: Optional[str] = "ACTUAL_GPS" # ACTUAL_GPS, SURVEYED_MINE, SIMULATED
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     gps_accuracy_meters: Optional[float] = None
@@ -59,11 +67,19 @@ class FieldEvidenceRead(BaseModel):
     evidence_code: str
     mine_id: int
     inspection_id: Optional[int] = None
+    observation_id: Optional[int] = None
+    incident_id: Optional[int] = None
     evidence_type: str
     title: str
     description: Optional[str] = None
     file_url_or_path: Optional[str] = None
     file_hash_sha256: str
+    file_size_bytes: int = 0
+    mime_type: Optional[str] = None
+    location_source: Optional[str] = "ACTUAL_GPS"
+    verification_status: str = "PENDING"
+    verified_by_id: Optional[int] = None
+    verification_notes: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     gps_accuracy_meters: Optional[float] = None
